@@ -1,0 +1,28 @@
+<h1>Forecast</h1>
+<%= form_tag '/forecast', method: 'get' do %>
+  <%= label_tag :address, 'Enter an address' %>
+  <%= text_field_tag :address, params[:address], required: true %>
+
+  <%= label_tag :units, 'Temperature Units' %>
+  <%= select_tag :units, options_for_select([['Fahrenheit', 'imperial'], ['Celsius', 'metric']], params[:units] || 'imperial') %>
+
+  <%= submit_tag 'Get Forecast' %>
+<% end %>
+<% if @forecast_data.present? %>
+  <% if Rails.cache.exist?("#{@address}_#{@units}") %>
+    <p>Forecast data retrieved from cache for <%= @address %>.</p>
+  <% else %>
+    <p>Forecast data retrieved for <%= @address %> from OpenWeather API.</p>
+  <% end %>
+  <p>Current temperature: <%= temperature_in_units(@current_temp, @units) %></p>
+  <p>High temperature: <%= temperature_in_units(@high_temp, @units) %></p>
+  <p>Low temperature: <%= temperature_in_units(@low_temp, @units) %></p>
+  <p>Extended forecast: <%= @extended_forecast %></p>
+<% else %>
+  <% if Rails.cache.exist?("#{@address}_#{@units}") %>
+    <p>Forecast data for <%= @address %> not available. Retrieved from cache.</p>
+  <% else %>
+    <p>Forecast data for <%= @address %> not available.</p>
+  <% end %>
+<% end %>
+
